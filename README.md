@@ -1,5 +1,6 @@
 # RWJigsaw
 A python module for generating random walk puzzle for laser cutting
+The exported svg needs a bit of cleanup
 
 Usage example:
 
@@ -12,3 +13,7 @@ j.show()
 j.complete()
 j.export(filename='test.svg')
 ```
+
+Output example:
+
+![alt text](https://github.com/kwedel/RWJigsaw/blob/master/example.svg)
