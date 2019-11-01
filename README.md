@@ -3,7 +3,7 @@ A python module for generating random walk puzzle for laser cutting
 
 Usage example:
 
-```
+```python
 from RWJigsaw imort Jigsaw
 j = Jigsaw(res=30, bordertype='circ')
 j.initiate_pieces(10)
