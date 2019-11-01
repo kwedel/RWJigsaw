@@ -5,7 +5,7 @@ The exported svg needs a bit of cleanup
 Usage example:
 
 ```python
-from RWJigsaw imort Jigsaw
+from RWJigsaw import Jigsaw
 j = Jigsaw(res=30, bordertype='circ') # Initate jigsaw
 j.initiate_pieces(10) # Create 10 pieces
 j.steps(grow_prop=0.2) # Grow until convergence
