@@ -1,13 +1,13 @@
 # RWJigsaw
-A python module for generating random walk puzzle for laser cutting
-The exported svg needs a bit of cleanup
+A python module for generating random walk puzzle for laser cutting.
+The exported svg needs a bit of cleanup.
 
 Usage example:
 
 ```python
 from RWJigsaw import Jigsaw
 j = Jigsaw(res=30, bordertype='circ') # Initate jigsaw
-j.initiate_pieces(10) # Create 10 pieces
+j.initiate_pieces(10, min_dist=3) # Create 10 pieces
 j.steps(grow_prop=0.2) # Grow until convergence
 j.show() # Show puzzle with matplotlib
 j.count() # Show sizes of pieces

@@ -39,11 +39,11 @@ class Jigsaw:
         'circ' for a circular puzzle.
 '''
     def __init__(self,res=50,bordertype='rect'):
-        self.res = res
+        self.res = res + 2
         self.num_pieces = 0
-        self.jigsaw = np.zeros((res,res),dtype=Dot)
-        for i in range(res):
-            for j in range(res):
+        self.jigsaw = np.zeros((self.res,self.res),dtype=Dot)
+        for i in range(self.res):
+            for j in range(self.res):
                 self.jigsaw[i,j] = Dot(i,j)
         self.active_cells = []
         if bordertype=='circ':
@@ -68,8 +68,11 @@ class Jigsaw:
                     self.jigsaw[i,j].active = False
                     self.jigsaw[i,j].empty = False
         
-    def initiate_pieces(self,num_pieces=11):
-        '''Initiate a number of pieces by randomly filling empty squares.'''
+    def initiate_pieces(self,num_pieces=11, min_dist=1):
+        '''Initiate a number of pieces by randomly filling empty squares.
+        Use min_dist to spread out seeding points. Be careful, it might
+        not converge.
+'''
         self.num_pieces = num_pieces
         
         for c in range(1, self.num_pieces+1):
@@ -79,6 +82,14 @@ class Jigsaw:
             while not (d.empty and d.active) and n<1000:
                 n += 1
                 index = tuple(np.random.choice(self.res, 2))
+                too_close = False
+                for p in self.active_cells:
+                    dist = np.sqrt(np.sum((np.array(index) - np.array(p))**2))
+                    if dist < min_dist:
+                        too_close = True
+                        break
+                if too_close:
+                    continue
                 d = self.jigsaw[index]
                 if d.empty and d.active:
                     d.color = c
@@ -147,7 +158,7 @@ class Jigsaw:
                 d = self.jigsaw[(i,j)]
                 if d.empty and d.active:
                     d.empty = False
-                    d.color = 100
+                    d.color = 1000
                     self.active_cells.append((i,j))
                     self.steps(1000)
                 
@@ -164,7 +175,7 @@ class Jigsaw:
                     plt.plot([i, i+1], [j, j-1],f'C{d.color % 9}o-')
         plt.show()
     
-    def _draw_arc(self,x,y,r,quad,stroke_width=1):
+    def _draw_arc(self,x,y,r,quad,stroke_width=4):
         '''Returns an svg quarter circle using the svgwrite module
 
         Parameters
@@ -199,6 +210,7 @@ class Jigsaw:
         scale : diameter of circles in px
         stroke_width : width of stroke in svg
         '''
+        colormap = plt.cm.get_cmap('jet',self.num_pieces)
         svg = svgwrite.Drawing(filename=filename, size=(scale*self.res,scale*self.res))
         g_circles = svg.add(svg.g(id='circles'))
         g_strokes = svg.add(svg.g(id='strokes'))
@@ -210,13 +222,14 @@ class Jigsaw:
                 nobonds = set(range(4)) - set(d.bonds)
                 for quad in nobonds:
                     g_strokes.add(self._draw_arc(i*scale,j*scale, scale/2, quad, **kwargs))
-                if d.color == 100:
+                if d.color == 1000:
                     fill = '#FFFFFF'
                 else:
-                    fill = cmap_to_hex(plt.cm.tab20(d.color/20))
+                    fill = cmap_to_hex(colormap(d.color))
                 g_circles.add(svg.circle((scale*i,scale*j),scale/2.1,
                                    fill=fill))
         svg.save()
+        print(f'File saved to {filename}')
         return svg
     
     def count(self):
@@ -233,6 +246,7 @@ class Jigsaw:
         print('    Piece   Size')
         for p,n in sorted(counts.items()):
             print(f'{p:9} {n:6}')
+        return counts
 
     def __repr__(self):
         return f'Resolution: {self.res}, number of pieces: {self.num_pieces}'
